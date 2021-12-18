@@ -1,6 +1,6 @@
 CREATE TABLE transactions
 (
-    id TEXT NOT NULL
+    id TEXT NOT NULL,
     account_id TEXT NOT NULL,
     amount DECIMAL NOT NULL,
     status TEXT NOT NULL,

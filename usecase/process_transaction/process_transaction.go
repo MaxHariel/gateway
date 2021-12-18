@@ -1,16 +1,19 @@
 package process_transaction
 
 import (
+	"github.com/maxhariel/gateway/adpater/broker"
 	"github.com/maxhariel/gateway/domain/entity"
 	"github.com/maxhariel/gateway/domain/repository"
 )
 
 type ProcessTransaction struct {
 	Repository repository.TransactionRepository
+	Producer   broker.ProducerInterface
+	Topic      string
 }
 
-func NewProcessTransaction(repository repository.TransactionRepository) *ProcessTransaction {
-	return &ProcessTransaction{Repository: repository}
+func NewProcessTransaction(repository repository.TransactionRepository, producer broker.ProducerInterface, topic string) *ProcessTransaction {
+	return &ProcessTransaction{Repository: repository, Producer: producer, Topic: topic}
 }
 
 func (p *ProcessTransaction) Excute(input TransactionDtoInput) (TransactionDtoOutput, error) {
@@ -44,5 +47,17 @@ func (p *ProcessTransaction) insertTransaction(transaction *entity.Transaction, 
 		ErrorMessage: errorMesage,
 	}
 
+	err = p.publish(output, []byte(transaction.ID))
+	if err != nil {
+		return TransactionDtoOutput{}, err
+	}
 	return output, nil
+}
+
+func (p *ProcessTransaction) publish(output TransactionDtoOutput, key []byte) error {
+	err := p.Producer.Publish(output, key, p.Topic)
+	if err != nil {
+		return err
+	}
+	return nil
 }
