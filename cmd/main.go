@@ -22,14 +22,14 @@ func main() {
 	repository := repositoryFactory.CreateTransactionRepository()
 
 	configMapProducer := &ckafka.ConfigMap{
-		"bootstrap.servers": "kafka:9092",
+		"bootstrap.servers": "host.docker.internal:9094",
 	}
 	kafkaPresenter := transaction.NewTransacationKafkaPresente()
 	producer := kafka.NewKafkaProducer(configMapProducer, kafkaPresenter)
 
 	var msgChan = make(chan *ckafka.Message)
 	configMapConsumer := &ckafka.ConfigMap{
-		"bootstrap.servers": "kafka:9092",
+		"bootstrap.servers": "host.docker.internal:9094",
 		"client.id":         "goapp",
 		"group.id":          "goapp",
 	}
